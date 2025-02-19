@@ -38,7 +38,7 @@ class CharacterController(
         val accountId = accountService.getCurrentAccountId()
 
         logger.debug { "$accountId is require Character of $id" }
-        TODO("Implement Service to return Character with Id selection")
+        return characterService.getCharacterById(id).toCharacterResponse(accountId)
     }
 
     @PostMapping

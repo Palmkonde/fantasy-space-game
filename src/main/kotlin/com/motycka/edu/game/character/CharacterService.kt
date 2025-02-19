@@ -37,12 +37,16 @@ object MockCharacters {
 class CharacterService(
     private val characterRepository: CharacterRepository
 ) {
-
     fun getCharacters(className: String?, name: String?):List<Pair<AccountId, Character>> {
         val data = MockCharacters.getData() //Replace this with sql query
 
         return data.filter { (id, element) ->
             (className == null || element::class.simpleName == className) && (name == null || element.name == name)
         }
+    }
+
+    fun getCharacterById(id: AccountId): Pair<AccountId, Character> {
+        val data = MockCharacters.getData() // Replace this with an SQL query
+        return data.find { (elementId, _) -> elementId == id } ?: throw NoSuchElementException("Characcter with $id not found")
     }
 }
