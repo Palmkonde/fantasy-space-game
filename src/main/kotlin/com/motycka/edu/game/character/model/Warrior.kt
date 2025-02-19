@@ -12,13 +12,15 @@ class Warrior(
     health: Int,
     attackPower: Int,
     level: CharacterLevel,
+    experience: Int,
     override val stamina: Int,
     override val defensePower: Int,
 ): Character(
     name = name,
     health = health,
     attackPower = attackPower,
-    level = level
+    level = level,
+    experience = experience
 ), Defender {
     private var currentStamina = stamina
 

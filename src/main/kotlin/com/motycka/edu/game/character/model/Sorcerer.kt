@@ -11,13 +11,15 @@ class Sorcerer(
     health: Int,
     attackPower: Int,
     level: CharacterLevel,
+    experience: Int,
     override val mana: Int,
     override val healingPower: Int,
 ): Character(
     name=name,
     health=health,
     attackPower=attackPower,
-    level = level
+    level = level,
+    experience = experience
 ), Healer {
     private var currentMana = mana
 

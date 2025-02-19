@@ -1,6 +1,6 @@
 package com.motycka.edu.game.character.interfaces
 
-import com.motycka.edu.game.character.model.C
+import com.motycka.edu.game.character.model.CharacterLevel
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val logger = KotlinLogging.logger {  }
@@ -9,7 +9,8 @@ abstract class Character(
     open val name: String,
     open val health: Int,
     open val attackPower: Int,
-    open val level: CharacterLevel
+    open val level: CharacterLevel,
+    open val experience: Int
 ): Recoverable {
 
     protected var currentHealth = health

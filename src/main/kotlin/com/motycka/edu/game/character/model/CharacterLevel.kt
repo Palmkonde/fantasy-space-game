@@ -10,5 +10,9 @@ enum class CharacterLevel(val points: Int) {
     LEVEL_7(240),
     LEVEL_8(260),
     LEVEL_9(280),
-    LEVEL_10(300),
+    LEVEL_10(300);
+
+    fun shouldLevelup(currentExp: Int): Boolean {
+        return currentExp > this.points
+    }
 }
