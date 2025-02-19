@@ -1,6 +1,5 @@
 insert into account (name, username, password) values ('Game', 'game', 'game');
 insert into account (name, username, password) values ('Motyka', 'motyka', 'heslo');
-insert into account (name, username, password) values ('palm', 'palm', 'palm');
 
 -- User character
 insert into character (account_id, name, health, attack, mana, healing, experience, class) values ((select id from account where username = 'motyka'),'Moni The Teacher', 100, 40, 30, 30, 6000, 'SORCERER');
