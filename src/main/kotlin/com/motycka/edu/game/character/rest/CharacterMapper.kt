@@ -3,6 +3,7 @@ package com.motycka.edu.game.character.rest
 import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.model.CharacterClass
+import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.character.model.Sorcerer
 import com.motycka.edu.game.character.model.Warrior
 
@@ -89,3 +90,26 @@ fun Pair<AccountId, Character>.toCharacterResponse(
     )
 }
 
+fun CharacterCreateRequest.toCharacter(): Character {
+    return when(this.characterClass) {
+       CharacterClass.WARRIOR -> Warrior(
+           name = this.name,
+           health = this.health,
+           attackPower = this.attackPower,
+           stamina = this.stamina ?: 0,
+           defensePower = this.defensePower ?: 0,
+           experience = 0,
+           level = CharacterLevel.LEVEL_1
+       )
+       CharacterClass.SORCERER -> Sorcerer(
+           name = this.name,
+           health = this.health,
+           attackPower = this.attackPower,
+           mana = this.mana ?: 0,
+           healingPower = this.healingPower ?: 0,
+           experience = 0,
+           level = CharacterLevel.LEVEL_1
+       )
+       else -> error("characterClass Doesn't Match")
+    }
+}

@@ -53,6 +53,7 @@ class AccountRepository(
         ).firstOrNull()
     }
 
+
     @Throws(SQLException::class)
     private fun rowMapper(rs: ResultSet, i: Int): Account {
         return Account(
