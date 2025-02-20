@@ -58,6 +58,7 @@ class Warrior(
         val result = max(0, attackPower - defensePower)
 
         if(currentStamina <= 0) {
+            currentStamina = 0
             logger.info{"$name is too tired to defend"}
             return attackPower
         }
@@ -74,8 +75,14 @@ class Warrior(
         super.receiveAttack(defend(attackPower))
     }
 
-    override fun beforeRounds() {
-       currentStamina++
+    override fun beforeRounds():List<Int> {
+        currentStamina++
+
+        return listOf(currentHealth, currentStamina, 0)
+    }
+
+    fun getCurrentStamina(): Int {
+        return currentStamina
     }
 
     override fun afterRound() {

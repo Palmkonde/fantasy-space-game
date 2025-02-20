@@ -67,8 +67,10 @@ class Sorcerer(
         }
     }
 
-    override fun beforeRounds() {
+    override fun beforeRounds(): List<Int> {
         currentMana++
+
+        return listOf(currentHealth, 0, currentMana)
     }
 
     override fun afterRound() {
@@ -77,5 +79,9 @@ class Sorcerer(
 
     override fun toString(): String {
         return super.toString()
+    }
+
+    fun getCurrentMana(): Int {
+        return currentMana
     }
 }

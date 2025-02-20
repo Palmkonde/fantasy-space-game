@@ -7,5 +7,5 @@ data class MatchResultResponse(
     val id: Long,
     val challenger: Fighter,
     val opponent: Fighter,
-    val rounds: RoundData
+    val rounds: List<RoundData>
 )
