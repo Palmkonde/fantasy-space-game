@@ -1,11 +1,14 @@
 package com.motycka.edu.game.character.interfaces
 
+import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.model.CharacterLevel
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val logger = KotlinLogging.logger {  }
 
 abstract class Character(
+    open val id: Long,
+    open val accountId: AccountId,
     open val name: String,
     open val health: Int,
     open val attackPower: Int,

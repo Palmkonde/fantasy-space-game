@@ -3,8 +3,8 @@ package com.motycka.edu.game.character
 import com.motycka.edu.game.account.AccountService
 import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
+import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
 import com.motycka.edu.game.character.rest.CharacterResponse
-import com.motycka.edu.game.character.rest.toCharacter
 import com.motycka.edu.game.character.rest.toCharacterResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
@@ -32,7 +33,6 @@ class CharacterController(
         @RequestParam(value = "name", required = false) name: String? = null
     ): List<CharacterResponse> {
         val accountId = accountService.getCurrentAccountId()
-        logger.debug { "Current Account ID: $accountId" }
         return characterService.getCharacters(className, name).toCharacterResponse(accountId)
     }
 
@@ -45,15 +45,40 @@ class CharacterController(
         return characterService.getCharacterById(id).toCharacterResponse(accountId)
     }
 
+    @GetMapping("/challengers")
+    fun getChallengers(): List<CharacterResponse> {
+        val accountId = accountService.getCurrentAccountId()
+        logger.debug { "$accountId is require His own Character" }
+        return characterService.getChallengers(accountId).toCharacterResponse(accountId)
+    }
+
+    @GetMapping("/opponents")
+    fun getOpponents(): List<CharacterResponse> {
+        val accountId = accountService.getCurrentAccountId()
+        logger.debug { "Get opponents of $accountId" }
+        return characterService.getOpponents(accountId).toCharacterResponse(accountId)
+    }
+
     @PostMapping
     fun postCharacter(
         @RequestBody newCharacter: CharacterCreateRequest
     ): ResponseEntity<CharacterResponse?> {
         val accountId = accountService.getCurrentAccountId()
         val response = characterService.createCharacter(
-            newCharacter.toCharacter()
+            newCharacter,
+            accountId
         ).toCharacterResponse(accountId)
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
+    @PutMapping("/{id}")
+    fun putCharacter(
+        @PathVariable id: Long,
+        @RequestBody updateCharacter: CharacterLevelUpRequest
+    ): Int {
+        logger.debug { "Update Charac" }
+        val accountId = accountService.getCurrentAccountId()
+        return characterService.upLevelCharacterById(id, updateCharacter)
     }
 }

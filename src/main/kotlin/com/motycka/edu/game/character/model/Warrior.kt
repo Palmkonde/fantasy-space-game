@@ -1,5 +1,6 @@
 package com.motycka.edu.game.character.model
 
+import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.interfaces.Defender
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -8,6 +9,8 @@ import kotlin.math.max
 private val logger = KotlinLogging.logger {  }
 
 class Warrior(
+    id: Long,
+    accountId: AccountId,
     name: String,
     health: Int,
     attackPower: Int,
@@ -16,6 +19,8 @@ class Warrior(
     override val stamina: Int,
     override val defensePower: Int,
 ): Character(
+    id = id,
+    accountId = accountId,
     name = name,
     health = health,
     attackPower = attackPower,

@@ -1,5 +1,6 @@
 package com.motycka.edu.game.character.model
 
+import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.interfaces.Healer
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -7,6 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val logger = KotlinLogging.logger {  }
 
 class Sorcerer(
+    id: Long,
+    accountId: AccountId,
     name: String,
     health: Int,
     attackPower: Int,
@@ -15,6 +18,8 @@ class Sorcerer(
     override val mana: Int,
     override val healingPower: Int,
 ): Character(
+    id = id,
+    accountId = accountId,
     name=name,
     health=health,
     attackPower=attackPower,

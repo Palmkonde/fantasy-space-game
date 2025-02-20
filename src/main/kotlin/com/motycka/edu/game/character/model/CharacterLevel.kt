@@ -15,4 +15,11 @@ enum class CharacterLevel(val points: Int) {
     fun shouldLevelup(currentExp: Int): Boolean {
         return currentExp > this.points
     }
+
+    fun upLevel(currentExp: Int): CharacterLevel {
+        if (!this.shouldLevelup(currentExp)) return this
+
+        return entries.find { it.points > this.points } ?: this
+    }
+
 }

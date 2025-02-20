@@ -8,12 +8,12 @@ import com.motycka.edu.game.character.model.Sorcerer
 import com.motycka.edu.game.character.model.Warrior
 
 
-fun List<Pair<AccountId, Character>>.toCharacterResponse(
+fun List<Character>.toCharacterResponse(
     userId: AccountId,
 ): List<CharacterResponse> {
-    return this.map { (elementId, element) ->
+    return this.map { element ->
         CharacterResponse(
-            id = elementId,
+            id = element.id,
             name = element.name,
             health = element.health,
             attackPower = element.attackPower,
@@ -45,71 +45,47 @@ fun List<Pair<AccountId, Character>>.toCharacterResponse(
             level = element.level,
             experience = element.experience,
             shouldLevelUp = element.level.shouldLevelup(element.experience),
-            isOwner = elementId == userId
+            isOwner = element.accountId == userId
         )
     }
 }
 
-fun Pair<AccountId, Character>.toCharacterResponse(
+fun Character.toCharacterResponse(
     userId: AccountId,
 ): CharacterResponse {
     return CharacterResponse(
-            id = this.first,
-            name = this.second.name,
-            health = this.second.health,
-            attackPower = this.second.attackPower,
+            id = this.id,
+            name = this.name,
+            health = this.health,
+            attackPower = this.attackPower,
 
-            stamina = when(this.second) {
-                is Warrior -> (this.second as Warrior).stamina
+            stamina = when(this) {
+                is Warrior -> this.stamina
                 else -> null
             },
-            defensePower = when(this.second) {
-                is Warrior -> (this.second as Warrior).defensePower
-                else -> null
-            },
-
-            mana = when(this.second){
-                is Sorcerer -> (this.second as Sorcerer).mana
-                else -> null
-            },
-            healingPower = when(this.second) {
-                is Sorcerer -> (this.second as Sorcerer).healingPower
+            defensePower = when(this) {
+                is Warrior -> this.defensePower
                 else -> null
             },
 
-            characterClass = when(this.second) {
+            mana = when(this){
+                is Sorcerer -> this.mana
+                else -> null
+            },
+            healingPower = when(this) {
+                is Sorcerer -> this.healingPower
+                else -> null
+            },
+
+            characterClass = when(this) {
                 is Warrior -> CharacterClass.WARRIOR
                 is Sorcerer -> CharacterClass.SORCERER
                 else -> error("Require CharacterClass")
             },
 
-            level = this.second.level,
-            experience = this.second.experience,
-            shouldLevelUp = this.second.level.shouldLevelup(this.second.experience),
-            isOwner = this.first == userId
+            level = this.level,
+            experience = this.experience,
+            shouldLevelUp = this.level.shouldLevelup(this.experience),
+            isOwner = this.accountId == userId
     )
-}
-
-fun CharacterCreateRequest.toCharacter(): Character {
-    return when(this.characterClass) {
-       CharacterClass.WARRIOR -> Warrior(
-           name = this.name,
-           health = this.health,
-           attackPower = this.attackPower,
-           stamina = this.stamina ?: 0,
-           defensePower = this.defensePower ?: 0,
-           experience = 0,
-           level = CharacterLevel.LEVEL_1
-       )
-       CharacterClass.SORCERER -> Sorcerer(
-           name = this.name,
-           health = this.health,
-           attackPower = this.attackPower,
-           mana = this.mana ?: 0,
-           healingPower = this.healingPower ?: 0,
-           experience = 0,
-           level = CharacterLevel.LEVEL_1
-       )
-       else -> error("characterClass Doesn't Match")
-    }
 }
