@@ -10,5 +10,4 @@ data class Fighter(
     val level: CharacterLevel,
     val experienceTotal: Int,
     val experienceGained: Int,
-    val isVictor: Boolean
 )

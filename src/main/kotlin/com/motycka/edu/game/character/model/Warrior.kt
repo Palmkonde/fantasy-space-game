@@ -31,11 +31,11 @@ class Warrior(
 
     init {
         val totalPoints = attackPower + currentStamina + defensePower
-        require(totalPoints <= level.points) {
-            logger.error {
-                "Invaild totalPoints: $totalPoints only allowed ${level.points} at ${level.name}"
-            }
-        }
+//        require(totalPoints <= level.points) {
+//            logger.error {
+//                "Invaild totalPoints: $totalPoints only allowed ${level.points} at ${level.name}"
+//            }
+//        }
     }
 
     override fun attack(target: Character){

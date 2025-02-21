@@ -30,11 +30,11 @@ class Sorcerer(
 
     init {
         val totalPoints = attackPower + mana + healingPower
-        require(totalPoints <= level.points) {
-            logger.error {
-                "Invaild totalPoints: $totalPoints only allowed ${level.points} at ${level.name}"
-            }
-        }
+//        require(totalPoints <= level.points) {
+//            logger.error {
+//                "Invaild totalPoints: $totalPoints only allowed ${level.points} at ${level.name}"
+//            }
+//        }
     }
 
     override fun attack(target: Character){
