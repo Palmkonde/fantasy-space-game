@@ -15,6 +15,6 @@ class LeaderBoardController(
     fun getLeaderBoard(
         @RequestParam(value = "class", required = false) className: String? = null
     ): LeaderBoardResponse {
-
+        return leaderBoardService.getLeaderBoard(className).toResponse()
     }
 }

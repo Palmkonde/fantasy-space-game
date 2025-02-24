@@ -5,5 +5,7 @@ import com.motycka.edu.game.character.rest.CharacterResponse
 data class LeaderBoardResponse(
     val position: Int,
     val character: CharacterResponse,
-    val wins:
+    val wins: Int,
+    val losses: Int,
+    val draws: Int
 )
