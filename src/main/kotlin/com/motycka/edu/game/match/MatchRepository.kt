@@ -1,5 +1,6 @@
 package com.motycka.edu.game.match
 
+import com.motycka.edu.game.character.CharacterRepository
 import com.motycka.edu.game.character.model.CharacterClass
 import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.match.model.Fighter
@@ -14,7 +15,8 @@ import java.sql.Statement
 
 @Repository
 class MatchRepository(
-    private val jdbcTemplate: JdbcTemplate
+    private val jdbcTemplate: JdbcTemplate,
+    private val characterRepository: CharacterRepository
 ) {
     fun saveMatch(
         challengerId: Long,
@@ -74,7 +76,13 @@ class MatchRepository(
             )
         }
 
-        return getMatchById(matchId) ?: error("Error this match: $matchId doesn't exist")
+        // Update character experience
+        characterRepository.updateExperience(challengerId, challengerResult.experienceTotal)
+        characterRepository.updateExperience(opponentId, opponentResult.experienceTotal)
+
+        return getMatchById(matchId)
+            ?: error("Error this match: $matchId doesn't exist")
+
     }
 
 
@@ -95,22 +103,6 @@ class MatchRepository(
 
         return jdbcTemplate.query(sql, { rs, _ -> mapMatchResult(rs) }, matchId)
             .firstOrNull()
-    }
-
-    private fun intToCharacterLevel(level: Int): CharacterLevel {
-        return when (level) {
-            1 -> CharacterLevel.LEVEL_1
-            2 -> CharacterLevel.LEVEL_2
-            3 -> CharacterLevel.LEVEL_3
-            4 -> CharacterLevel.LEVEL_4
-            5 -> CharacterLevel.LEVEL_5
-            6 -> CharacterLevel.LEVEL_6
-            7 -> CharacterLevel.LEVEL_7
-            8 -> CharacterLevel.LEVEL_8
-            9 -> CharacterLevel.LEVEL_9
-            10 -> CharacterLevel.LEVEL_10
-            else -> CharacterLevel.LEVEL_1 // Default to level 1 if unknown
-        }
     }
 
     private val matchSelectSql = """

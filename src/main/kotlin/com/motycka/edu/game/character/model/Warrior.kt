@@ -27,17 +27,9 @@ class Warrior(
     level = level,
     experience = experience
 ), Defender {
-    private val statsPoints = level.modifyPoints(
-        attackPower = attackPower,
-        defensePower = defensePower,
-        stamina = stamina,
-        mana = null,
-        healingPower = null
-    )
-
-    private val currentAttackPower = statsPoints[0]
-    private val currentDefensePower = statsPoints[1]
-    private var currentStamina = statsPoints[2]
+    private val currentAttackPower = attackPower
+    private val currentDefensePower = defensePower
+    private var currentStamina = stamina
 
     override fun attack(target: Character){
         if(!isAlive) {

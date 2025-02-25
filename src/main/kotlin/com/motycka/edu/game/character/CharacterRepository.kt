@@ -131,7 +131,6 @@ class CharacterRepository(
         ).firstOrNull()
     }
 
-    // TODO: Fix this function
     fun upLevelCharacter(id: Long, updateCharacter: CharacterLevelUpRequest): Int? {
         val sqlWarrior = """
             UPDATE character
@@ -140,7 +139,7 @@ class CharacterRepository(
                 health = ?,
                 attack = ?,
                 stamina = ?,
-                defense = ?,
+                defense = ?
             WHERE id = ?
         """.trimIndent()
 
@@ -151,7 +150,7 @@ class CharacterRepository(
                 health = ?,
                 attack = ?,
                 mana = ?,
-                healing = ?,
+                healing = ?
             WHERE id = ?
         """.trimIndent()
 
@@ -177,6 +176,16 @@ class CharacterRepository(
                 id
             )
         }
+    }
+
+    fun updateExperience(id: Long, experience: Int): Int {
+        val sql = """
+            UPDATE character
+            SET experience = ?
+            WHERE id = ?
+        """.trimIndent()
+
+        return jdbcTemplate.update(sql, experience, id)
     }
 
     @Throws(SQLException::class)

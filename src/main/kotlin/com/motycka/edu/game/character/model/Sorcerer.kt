@@ -26,17 +26,9 @@ class Sorcerer(
     level = level,
     experience = experience
 ), Healer {
-    private val statsPoints = level.modifyPoints(
-        attackPower = attackPower,
-        defensePower = null,
-        stamina = null,
-        mana = mana,
-        healingPower = healingPower
-    )
-
-    private val currentAttackPower = statsPoints[0]
-    private val currentHealingPower = statsPoints[1]
-    private var currentMana = statsPoints[2]
+    private val currentAttackPower = attackPower
+    private val currentHealingPower = healingPower
+    private var currentMana = mana
 
     override fun attack(target: Character){
         if(!isAlive) {

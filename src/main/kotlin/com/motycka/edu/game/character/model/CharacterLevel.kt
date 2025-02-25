@@ -31,28 +31,4 @@ enum class CharacterLevel(
     fun upLevel(currentExp: Int): CharacterLevel {
         return entries.toTypedArray().findLast { it.points <= currentExp } ?: LEVEL_1
     }
-
-    fun modifyPoints(
-        attackPower: Int?,
-        defensePower: Int?,
-        stamina: Int?,
-        mana: Int?,
-        healingPower: Int?
-    ): List<Int> {
-        val mapLevel = this.ordinal
-
-        return if(mana == null || healingPower == null)  {
-            listOf(
-                attackPower!! + mapLevel * 5,
-                defensePower!! + mapLevel * 5,
-                stamina!! + mapLevel * 5
-            )
-        } else {
-            listOf(
-                attackPower!! + mapLevel * 5,
-                mana + mapLevel * 5,
-                healingPower + mapLevel * 5
-            )
-        }
-    }
 }

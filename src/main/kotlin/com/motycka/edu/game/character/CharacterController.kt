@@ -76,9 +76,10 @@ class CharacterController(
     fun putCharacter(
         @PathVariable id: Long,
         @RequestBody updateCharacter: CharacterLevelUpRequest
-    ): Int {
+    ): ResponseEntity<Int> {
         logger.debug { "Update Charac" }
-        val accountId = accountService.getCurrentAccountId()
-        return characterService.upLevelCharacterById(id, updateCharacter)
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            characterService.upLevelCharacterById(id, updateCharacter)
+        )
     }
 }
