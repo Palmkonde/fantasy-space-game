@@ -131,6 +131,7 @@ class CharacterRepository(
         ).firstOrNull()
     }
 
+    // TODO: Fix this function
     fun upLevelCharacter(id: Long, updateCharacter: CharacterLevelUpRequest): Int? {
         val sqlWarrior = """
             UPDATE character

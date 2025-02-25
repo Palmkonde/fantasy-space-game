@@ -1,17 +1,65 @@
 package com.motycka.edu.game.leaderboard
 
+import com.motycka.edu.game.account.model.AccountId
+import com.motycka.edu.game.character.CharacterRepository
+import com.motycka.edu.game.character.rest.toCharacterResponse
 import com.motycka.edu.game.leaderboard.rest.LeaderBoardResponse
 import com.motycka.edu.game.match.MatchRepository
 import com.motycka.edu.game.match.model.MatchOutcome
-import com.motycka.edu.game.match.rest.MatchResultResponse
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
 class LeaderBoardRepository(
     private val jdbcTemplate: JdbcTemplate,
-    private val matchRepository: MatchRepository
+    private val matchRepository: MatchRepository,
+    private val characterRepository: CharacterRepository
 ) {
+    fun getLeaderBoard(className: String?, userId: AccountId): List<LeaderBoardResponse> {
+        val characters = characterRepository.selectByFilters(className, null)
+
+        val leaderBoardResponses = characters.map { character ->
+            val leaderboardEntry = try {
+                jdbcTemplate.queryForObject(
+                    "SELECT wins, losses, draws FROM leaderboard WHERE character_id = ?",
+                    { rs, _ ->
+                        LeaderBoardResponse(
+                            position = 0,
+                            character = character.toCharacterResponse(userId),
+                            wins = rs.getInt("wins"),
+                            losses = rs.getInt("losses"),
+                            draws = rs.getInt("draws")
+                        )
+                    },
+                    character.id
+                )
+            } catch (e: EmptyResultDataAccessException) {
+                LeaderBoardResponse(
+                    position = 0,
+                    character = character.toCharacterResponse(userId),
+                    wins = 0,
+                    losses = 0,
+                    draws = 0
+                )
+            }
+            leaderboardEntry
+        }
+        // Sort the leaderboard responses
+        val sortedLeaderBoardResponses = leaderBoardResponses.sortedWith(
+            compareByDescending<LeaderBoardResponse> { it.wins }
+                .thenBy { it.losses }
+                .thenBy { it.draws }
+        )
+
+        // Assign positions
+        sortedLeaderBoardResponses.forEachIndexed { index, leaderBoardResponse ->
+            leaderBoardResponse.position = index + 1
+        }
+
+        return sortedLeaderBoardResponses
+    }
+
     fun updateLeaderBoardFromMatch(matchId: Long) {
         val matchResult = matchRepository.getMatchById(matchId)
             ?: throw IllegalArgumentException("Match with ID $matchId not found")

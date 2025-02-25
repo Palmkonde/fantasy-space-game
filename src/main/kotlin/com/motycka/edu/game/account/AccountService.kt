@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 private val logger = KotlinLogging.logger {}
 
@@ -40,6 +41,7 @@ class AccountService(
         return accountRepository.selectByUsername(username = username)
     }
 
+    @Transactional
     fun createAccount(account: Account): Account {
         logger.debug { "Creating new user: $account" }
         return accountRepository.insertAccount(account = account) ?: error(CREATE_ERROR)

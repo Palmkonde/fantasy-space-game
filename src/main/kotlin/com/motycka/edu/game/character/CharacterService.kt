@@ -5,6 +5,7 @@ import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
 import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CharacterService(
@@ -20,6 +21,7 @@ class CharacterService(
         return data ?: error("No such a character with ID: $id")
     }
 
+    @Transactional
     fun createCharacter(newCharacter: CharacterCreateRequest, accountId: AccountId): Character {
         return characterRepository.insertCharacter(newCharacter, accountId) ?: error("Error Can't create Charactor")
     }
@@ -34,6 +36,7 @@ class CharacterService(
         return data ?: error("Can't require Opponents")
     }
 
+    @Transactional
     fun upLevelCharacterById(id: Long, updateCharacter: CharacterLevelUpRequest): Int {
         val data = characterRepository.upLevelCharacter(id, updateCharacter)
         return data ?: error("Character Can't LevelUp")

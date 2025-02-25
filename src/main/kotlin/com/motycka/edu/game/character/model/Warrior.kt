@@ -14,7 +14,7 @@ class Warrior(
     name: String,
     health: Int,
     attackPower: Int,
-    level: CharacterLevel,
+    override val level: CharacterLevel,
     experience: Int,
     override val stamina: Int,
     override val defensePower: Int,
@@ -27,16 +27,17 @@ class Warrior(
     level = level,
     experience = experience
 ), Defender {
-    private var currentStamina = stamina
+    private val statsPoints = level.modifyPoints(
+        attackPower = attackPower,
+        defensePower = defensePower,
+        stamina = stamina,
+        mana = null,
+        healingPower = null
+    )
 
-    init {
-        val totalPoints = attackPower + currentStamina + defensePower
-//        require(totalPoints <= level.points) {
-//            logger.error {
-//                "Invaild totalPoints: $totalPoints only allowed ${level.points} at ${level.name}"
-//            }
-//        }
-    }
+    private val currentAttackPower = statsPoints[0]
+    private val currentDefensePower = statsPoints[1]
+    private var currentStamina = statsPoints[2]
 
     override fun attack(target: Character){
         if(!isAlive) {
@@ -49,13 +50,13 @@ class Warrior(
         }
         else {
             logger.info{"$name swings a sword at ${target.name}"}
-            target.receiveAttack(attackPower)
+            target.receiveAttack(currentAttackPower)
             currentStamina -= 1
         }
     }
 
     override fun defend(attackPower: Int): Int {
-        val result = max(0, attackPower - defensePower)
+        val result = max(0, attackPower - currentDefensePower)
 
         if(currentStamina <= 0) {
             currentStamina = 0
@@ -64,7 +65,7 @@ class Warrior(
         }
 
         else if(currentStamina > 0) {
-            logger.info{"$name raises shield and defends against $defensePower damage"}
+            logger.info{"$name raises shield and defends against $currentDefensePower damage"}
             currentStamina -= 1
             return result
         }

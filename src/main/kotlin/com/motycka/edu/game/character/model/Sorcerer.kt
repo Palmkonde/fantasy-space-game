@@ -26,29 +26,30 @@ class Sorcerer(
     level = level,
     experience = experience
 ), Healer {
-    private var currentMana = mana
+    private val statsPoints = level.modifyPoints(
+        attackPower = attackPower,
+        defensePower = null,
+        stamina = null,
+        mana = mana,
+        healingPower = healingPower
+    )
 
-    init {
-        val totalPoints = attackPower + mana + healingPower
-//        require(totalPoints <= level.points) {
-//            logger.error {
-//                "Invaild totalPoints: $totalPoints only allowed ${level.points} at ${level.name}"
-//            }
-//        }
-    }
+    private val currentAttackPower = statsPoints[0]
+    private val currentHealingPower = statsPoints[1]
+    private var currentMana = statsPoints[2]
 
     override fun attack(target: Character){
         if(!isAlive) {
             logger.info { "$name is dead and cannot attack" }
             return
         }
-        if(mana <= 0){
+        if(currentMana <= 0){
             logger.info { "$name is too tired to attack" }
             return
         }
         else {
             logger.info { "$name casts a spell at ${target.name}" }
-            target.receiveAttack(attackPower)
+            target.receiveAttack(currentAttackPower)
             currentMana--
             this.heal()
         }
@@ -57,11 +58,10 @@ class Sorcerer(
     override fun heal() {
         if(currentMana <= 0) {
             currentMana = 0
-            println("$name is out of mana")
             logger.info { "$name is out of mana "}
         }
         else if(currentMana > 0 && currentHealth < health) {
-            currentHealth += healingPower
+            currentHealth += currentHealingPower
             logger.info { "$name heals self to $currentHealth health "}
             currentMana -= 2
         }
