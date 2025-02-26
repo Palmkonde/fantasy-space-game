@@ -27,6 +27,14 @@ class Warrior(
     level = level,
     experience = experience
 ), Defender {
+
+    init {
+        val totalPoints = attackPower + stamina + defensePower
+        require(totalPoints <= level.points) {
+            "Total points $totalPoints exceeds level ${level.points}"
+        }
+    }
+
     private val currentAttackPower = attackPower
     private val currentDefensePower = defensePower
     private var currentStamina = stamina

@@ -323,23 +323,23 @@ class CharactersTab {
         this.currentLevelUpCharacter = character;
         
         this.showPointsAssignmentDialog(character, nextLevel, async (updateData) => {
-            try {
-                // Send flat structure matching the backend expectations
-                const response = await fetchWithAuth(`/api/characters/${character.id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(updateData)
-                });
-                
-                if (response.ok) {
-                    this.levelUpModal.hide();
-                    showToast('Character leveled up successfully!');
-                    await this.loadCharacters();
-                }
-            } catch (error) {
-                showToast(error.message, true);
-            }
-        });
-    }
+        try {
+            const characterData = await fetchWithAuth(`/api/characters/${character.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+
+            console.log('Response data:', characterData);
+
+            // If we got here, the request was successful
+            this.levelUpModal.hide();
+            showToast('Character leveled up successfully!');
+            await this.loadCharacters();
+        } catch (error) {
+            showToast(error.message, true);
+        }
+    });
+}
 
     async showPointsAssignmentDialog(character, nextLevel, callback) {
         try {

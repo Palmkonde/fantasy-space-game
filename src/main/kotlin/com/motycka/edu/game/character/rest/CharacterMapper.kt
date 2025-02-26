@@ -3,7 +3,6 @@ package com.motycka.edu.game.character.rest
 import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.model.CharacterClass
-import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.character.model.Sorcerer
 import com.motycka.edu.game.character.model.Warrior
 

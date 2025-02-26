@@ -73,7 +73,7 @@ class MatchService(
             else -> MatchOutcome.DRAW
         }
 
-val challengerExp = if (winner == challenger) 100 else 50
+        val challengerExp = if (winner == challenger) 100 else 50
         logger.info { "Challenger Experience Gained: $challengerExp" }
         val challengerResult = Fighter(
             id = challenger.id,
@@ -84,7 +84,10 @@ val challengerExp = if (winner == challenger) 100 else 50
             },
             experienceTotal = challenger.experience + challengerExp,
             experienceGained = challengerExp,
-            level = challenger.level.upLevel(challenger.experience + challengerExp)
+            level = challenger.level.upLevel(
+                character = challenger,
+                otherPoints = null
+            )
         )
 
         val opponentExp = if (winner == opponent) 100 else 50
@@ -98,7 +101,10 @@ val challengerExp = if (winner == challenger) 100 else 50
             },
             experienceTotal = opponent.experience + opponentExp,
             experienceGained = opponentExp,
-            level = opponent.level.upLevel(opponent.experience + opponentExp)
+            level = opponent.level.upLevel(
+                character = opponent,
+                otherPoints = null
+            )
         )
         val matchResult = matchRepository.saveMatch(
             challengerId = challenger.id,

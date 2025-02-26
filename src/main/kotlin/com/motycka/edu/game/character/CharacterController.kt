@@ -38,7 +38,7 @@ class CharacterController(
 
     @GetMapping("/{id}")
     fun getCharacterById(
-        @PathVariable id: AccountId
+        @PathVariable id: Long
     ): CharacterResponse {
         val accountId = accountService.getCurrentAccountId()
         logger.debug { "$accountId is require Character of $id" }
@@ -76,10 +76,15 @@ class CharacterController(
     fun putCharacter(
         @PathVariable id: Long,
         @RequestBody updateCharacter: CharacterLevelUpRequest
-    ): ResponseEntity<Int> {
-        logger.debug { "Update Charac" }
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            characterService.upLevelCharacterById(id, updateCharacter)
-        )
+    ): ResponseEntity<CharacterResponse> {
+        logger.debug { "Update Character" }
+        return try {
+            ResponseEntity.ok(
+                characterService.upLevelCharacterById(id, updateCharacter).toCharacterResponse(accountService.getCurrentAccountId())
+            )
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to update character" }
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
     }
 }

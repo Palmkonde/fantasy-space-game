@@ -4,6 +4,7 @@ import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
 import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
+import com.motycka.edu.game.character.rest.CharacterResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -37,8 +38,8 @@ class CharacterService(
     }
 
     @Transactional
-    fun upLevelCharacterById(id: Long, updateCharacter: CharacterLevelUpRequest): Int {
+    fun upLevelCharacterById(id: Long, updateCharacter: CharacterLevelUpRequest): Character {
         val data = characterRepository.upLevelCharacter(id, updateCharacter)
-        return data ?: error("Character Can't LevelUp")
+        return data ?: error("Can't update Character")
     }
 }

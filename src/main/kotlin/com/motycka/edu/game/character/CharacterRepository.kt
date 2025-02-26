@@ -131,51 +131,59 @@ class CharacterRepository(
         ).firstOrNull()
     }
 
-    fun upLevelCharacter(id: Long, updateCharacter: CharacterLevelUpRequest): Int? {
-        val sqlWarrior = """
-            UPDATE character
-            SET
-                name = ?,
-                health = ?,
-                attack = ?,
-                stamina = ?,
-                defense = ?
-            WHERE id = ?
-        """.trimIndent()
+    fun upLevelCharacter(id: Long, updateCharacter: CharacterLevelUpRequest): Character {
+            val sqlWarrior = """
+                UPDATE character
+                SET
+                    name = ?,
+                    health = ?,
+                    attack = ?,
+                    stamina = ?,
+                    defense = ?
+                WHERE id = ?
+            """.trimIndent()
 
-        val sqlSorcerer = """
-            UPDATE character
-            SET
-                name = ?,
-                health = ?,
-                attack = ?,
-                mana = ?,
-                healing = ?
-            WHERE id = ?
-        """.trimIndent()
+            val sqlSorcerer = """
+                UPDATE character
+                SET
+                    name = ?,
+                    health = ?,
+                    attack = ?,
+                    mana = ?,
+                    healing = ?
+                WHERE id = ?
+            """.trimIndent()
 
-        if(updateCharacter.mana == null || updateCharacter.healingPower == null) {
-            return jdbcTemplate.update(
-                sqlWarrior,
-                updateCharacter.name,
-                updateCharacter.health,
-                updateCharacter.attackPower,
-                updateCharacter.stamina,
-                updateCharacter.defensePower,
-                id
-                )
-        }
-        else {
-            return jdbcTemplate.update(
-                sqlSorcerer,
-                updateCharacter.name,
-                updateCharacter.health,
-                updateCharacter.attackPower,
-                updateCharacter.mana,
-                updateCharacter.healingPower,
-                id
-            )
-        }
+            val character = selectById(id) ?: throw SQLException("Character not found")
+            return try {
+                if (updateCharacter.mana == null || updateCharacter.healingPower == null) {
+                    jdbcTemplate.update(
+                        sqlWarrior,
+                        updateCharacter.name,
+                        updateCharacter.health,
+                        updateCharacter.attackPower,
+                        updateCharacter.stamina,
+                        updateCharacter.defensePower,
+                        id
+                    )
+                    updateExperience(id, character.experience - character.level.requireExp)
+                } else {
+                    jdbcTemplate.update(
+                        sqlSorcerer,
+                        updateCharacter.name,
+                        updateCharacter.health,
+                        updateCharacter.attackPower,
+                        updateCharacter.mana,
+                        updateCharacter.healingPower,
+                        id
+                    )
+                    updateExperience(id, character.experience - character.level.requireExp)
+                }
+                selectById(id) ?: throw SQLException("Character not found after update")
+            } catch (ex: SQLException) {
+                logger.error(ex) { "Error updating character with id $id" }
+                throw ex
+            }
     }
 
     fun updateExperience(id: Long, experience: Int): Int {
@@ -191,31 +199,56 @@ class CharacterRepository(
     @Throws(SQLException::class)
     private fun rowMapper(rs: ResultSet, i: Int): Character {
         return when(rs.getString("class")) {
-            CharacterClass.WARRIOR.toString() -> Warrior(
-                id = rs.getLong("id"),
-                accountId = rs.getLong("account_id"),
-                name = rs.getString("name"),
-                health = rs.getInt("health"),
-                attackPower = rs.getInt("attack"),
-                level = CharacterLevel.LEVEL_1.upLevel(rs.getInt("experience")),
-                experience = rs.getInt("experience"),
-                defensePower = rs.getInt("defense"),
-                stamina = rs.getInt("stamina")
-            )
+            CharacterClass.WARRIOR.toString() -> {
+                val health = rs.getInt("health")
+                val attack = rs.getInt("attack")
+                val defense = rs.getInt("defense")
+                val stamina = rs.getInt("stamina")
 
-            CharacterClass.SORCERER.toString() -> Sorcerer(
-                id = rs.getLong("id"),
-                accountId = rs.getLong("account_id"),
-                name = rs.getString("name"),
-                health = rs.getInt("health"),
-                attackPower = rs.getInt("attack"),
-                level = CharacterLevel.LEVEL_1.upLevel(rs.getInt("experience")),
-                experience = rs.getInt("experience"),
-                mana = rs.getInt("mana"),
-                healingPower = rs.getInt("healing")
-            )
+                // Use the existing upLevel method with the list of points
+                val level = CharacterLevel.LEVEL_1.upLevel(
+                    character = null,
+                    otherPoints = listOf(health, attack, defense, stamina)
+                )
+
+                Warrior(
+                    id = rs.getLong("id"),
+                    accountId = rs.getLong("account_id"),
+                    name = rs.getString("name"),
+                    health = health,
+                    attackPower = attack,
+                    level = level,
+                    experience = rs.getInt("experience"),
+                    defensePower = defense,
+                    stamina = stamina
+                )
+            }
+
+            CharacterClass.SORCERER.toString() -> {
+                val health = rs.getInt("health")
+                val attack = rs.getInt("attack")
+                val mana = rs.getInt("mana")
+                val healing = rs.getInt("healing")
+
+                // Use the existing upLevel method with the list of points
+                val level = CharacterLevel.LEVEL_1.upLevel(
+                    character = null,
+                    otherPoints = listOf(health, attack, mana, healing)
+                )
+
+                Sorcerer(
+                    id = rs.getLong("id"),
+                    accountId = rs.getLong("account_id"),
+                    name = rs.getString("name"),
+                    health = health,
+                    attackPower = attack,
+                    level = level,
+                    experience = rs.getInt("experience"),
+                    mana = mana,
+                    healingPower = healing
+                )
+            }
             else -> error("Doesn't match any Class")
         }
     }
-
 }

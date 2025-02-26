@@ -131,7 +131,10 @@ class MatchRepository(
         id = rs.getLong("${prefix}_id"),
         name = rs.getString("${prefix}_name"),
         characterClass = CharacterClass.valueOf(rs.getString("${prefix}_class")),
-        level = CharacterLevel.LEVEL_1.upLevel(rs.getInt("${prefix}_exp")),
+        level = CharacterLevel.LEVEL_1.upLevel(
+            character = characterRepository.selectById(rs.getLong("${prefix}_id")),
+            otherPoints = null
+        ),
         experienceTotal = rs.getInt("${prefix}_exp"),
         experienceGained = rs.getInt("${prefix}_xp"),
     )

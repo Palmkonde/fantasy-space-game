@@ -30,6 +30,7 @@ class Sorcerer(
     private val currentHealingPower = healingPower
     private var currentMana = mana
 
+
     override fun attack(target: Character){
         if(!isAlive) {
             logger.info { "$name is dead and cannot attack" }
