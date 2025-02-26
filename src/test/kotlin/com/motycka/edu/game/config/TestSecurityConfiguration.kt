@@ -25,8 +25,8 @@ class TestSecurityConfiguration(private val userService: AccountService) {
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers(HttpMethod.GET, "/login.html").permitAll()
                 auth.requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
+                auth.requestMatchers(HttpMethod.GET, "/login.html").permitAll()
                 auth.anyRequest().authenticated()
             }
             .httpBasic(Customizer.withDefaults())

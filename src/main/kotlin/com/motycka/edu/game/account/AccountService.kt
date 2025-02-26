@@ -41,7 +41,6 @@ class AccountService(
         return accountRepository.selectByUsername(username = username)
     }
 
-    @Transactional
     fun createAccount(account: Account): Account {
         logger.debug { "Creating new user: $account" }
         return accountRepository.insertAccount(account = account) ?: error(CREATE_ERROR)
