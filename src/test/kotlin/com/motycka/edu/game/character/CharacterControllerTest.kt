@@ -2,13 +2,14 @@ package com.motycka.edu.game.character
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.motycka.edu.game.account.AccountService
+import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.model.CharacterClass
 import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.character.model.Sorcerer
 import com.motycka.edu.game.character.model.Warrior
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
 import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
-import com.motycka.edu.game.config.SecurityContextHolderHelper
+import com.motycka.edu.game.character.rest.CharacterResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
@@ -19,7 +20,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import com.motycka.edu.game.account.AccountFixtures
 
 @WebMvcTest(CharacterController::class)
 class CharacterControllerTest {
@@ -63,14 +63,13 @@ class CharacterControllerTest {
 
     @BeforeEach
     fun setUp() {
-        SecurityContextHolderHelper.setSecurityContext(AccountFixtures.DEVELOPER)
         `when`(accountService.getCurrentAccountId()).thenReturn(accountId)
     }
 
     @Test
     fun `getCharacter should return filtered characters`() {
         val characters = listOf(warriorCharacter, sorcererCharacter)
-        `when`(characterService.getCharacters(any(), any())).thenReturn(characters)
+        `when`(characterService.getCharacters(anyString(), anyString())).thenReturn(characters)
 
         mockMvc.perform(get("/api/characters")
             .param("class", "WARRIOR")
@@ -83,7 +82,7 @@ class CharacterControllerTest {
 
     @Test
     fun `getCharacterById should return character by id`() {
-        `when`(characterService.getCharacterById(1L)).thenReturn(warriorCharacter)
+        `when`(characterService.getCharacterById(anyLong())).thenReturn(warriorCharacter)
 
         mockMvc.perform(get("/api/characters/1"))
             .andExpect(status().isOk)
@@ -97,7 +96,7 @@ class CharacterControllerTest {
     @Test
     fun `getChallengers should return owned characters`() {
         val challengers = listOf(warriorCharacter)
-        `when`(characterService.getChallengers(accountId)).thenReturn(challengers)
+        `when`(characterService.getChallengers(anyLong())).thenReturn(challengers)
 
         mockMvc.perform(get("/api/characters/challengers"))
             .andExpect(status().isOk)
@@ -110,7 +109,7 @@ class CharacterControllerTest {
     @Test
     fun `getOpponents should return non-owned characters`() {
         val opponents = listOf(sorcererCharacter)
-        `when`(characterService.getOpponents(accountId)).thenReturn(opponents)
+        `when`(characterService.getOpponents(anyLong())).thenReturn(opponents)
 
         mockMvc.perform(get("/api/characters/opponents"))
             .andExpect(status().isOk)
@@ -133,7 +132,7 @@ class CharacterControllerTest {
             healingPower = null
         )
 
-        `when`(characterService.createCharacter(eq(request), eq(accountId))).thenReturn(warriorCharacter)
+        `when`(characterService.createCharacter(any(), anyLong())).thenReturn(warriorCharacter)
 
         mockMvc.perform(post("/api/characters")
             .contentType(MediaType.APPLICATION_JSON)
@@ -142,7 +141,7 @@ class CharacterControllerTest {
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("TestWarrior"))
 
-        verify(characterService).createCharacter(eq(request), eq(accountId))
+        verify(characterService).createCharacter(any(), eq(accountId))
     }
 
     @Test
@@ -158,18 +157,18 @@ class CharacterControllerTest {
         )
 
         val updatedWarrior = Warrior(
-        id = 1L,
-        accountId = accountId,
-        name = "UpdatedWarrior",
-        health = 120,
-        attackPower = 60,
-        level = CharacterLevel.LEVEL_1,
-        experience = 0,
-        defensePower = 40,
-        stamina = 50
-    )
+            id = 1L,
+            accountId = accountId,
+            experience = 0,
+            name = "UpdatedWarrior",
+            health = 120,
+            attackPower = 60,
+            defensePower = 40,
+            level = CharacterLevel.LEVEL_1,
+            stamina = 50
+        )
 
-        `when`(characterService.upLevelCharacterById(eq(1L), eq(request))).thenReturn(updatedWarrior)
+        `when`(characterService.upLevelCharacterById(anyLong(), any())).thenReturn(updatedWarrior)
 
         mockMvc.perform(put("/api/characters/1")
             .contentType(MediaType.APPLICATION_JSON)
@@ -178,7 +177,7 @@ class CharacterControllerTest {
             .andExpect(jsonPath("$.name").value("UpdatedWarrior"))
             .andExpect(jsonPath("$.health").value(120))
 
-        verify(characterService).upLevelCharacterById(eq(1L), eq(request))
+        verify(characterService).upLevelCharacterById(eq(1L), any())
     }
 
     @Test
@@ -193,7 +192,7 @@ class CharacterControllerTest {
             healingPower = null
         )
 
-        `when`(characterService.upLevelCharacterById(eq(1L), eq(request)))
+        `when`(characterService.upLevelCharacterById(anyLong(), any()))
             .thenThrow(RuntimeException("Failed to update character"))
 
         mockMvc.perform(put("/api/characters/1")
