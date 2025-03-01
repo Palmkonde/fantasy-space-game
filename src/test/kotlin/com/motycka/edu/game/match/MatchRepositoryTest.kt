@@ -13,18 +13,10 @@ import com.motycka.edu.game.match.model.RoundData
 import com.motycka.edu.game.match.rest.MatchResultResponse
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
 import io.mockk.verify
-import io.mockk.slot
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.PreparedStatementCreator
-import org.springframework.jdbc.support.GeneratedKeyHolder
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.Statement
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 

@@ -1,7 +1,6 @@
 package com.motycka.edu.game.leaderboard
 
 import com.motycka.edu.game.account.AccountService
-import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.model.CharacterClass
 import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.character.rest.CharacterResponse
@@ -12,7 +11,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class LeaderBoardServiceTest {
 
