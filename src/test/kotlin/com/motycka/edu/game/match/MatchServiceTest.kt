@@ -1,11 +1,12 @@
 package com.motycka.edu.game.match
 
-import com.motycka.edu.game.account.AccountService
+import com.motycka.edu.game.account.AccountFixtures
 import com.motycka.edu.game.character.CharacterService
 import com.motycka.edu.game.character.model.CharacterClass
 import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.character.model.Sorcerer
 import com.motycka.edu.game.character.model.Warrior
+import com.motycka.edu.game.config.SecurityContextHolderHelper
 import com.motycka.edu.game.leaderboard.LeaderBoardService
 import com.motycka.edu.game.match.model.Fighter
 import com.motycka.edu.game.match.model.MatchOutcome
@@ -19,14 +20,17 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.*
 
 class MatchServiceTest {
 
-    private lateinit var matchService: MatchService
-    private lateinit var matchRepository: MatchRepository
-    private lateinit var characterService: CharacterService
-    private lateinit var leaderBoardService: LeaderBoardService
+    private val matchRepository: MatchRepository = mockk()
+    private val characterService: CharacterService = mockk()
+    private val leaderBoardService: LeaderBoardService = mockk()
+    private val matchService: MatchService = MatchService(
+        matchRepository = matchRepository,
+        characterService = characterService,
+        leaderBoardService = leaderBoardService
+    )
 
     private val accountId = 1L
     private val matchId = 1L
@@ -38,100 +42,163 @@ class MatchServiceTest {
 
     @BeforeEach
     fun setUp() {
-        matchRepository = mock(MatchRepository::class.java)
-        characterService = mock(CharacterService::class.java)
-        leaderBoardService = mock(LeaderBoardService::class.java)
-        matchService = MatchService(matchRepository, characterService, leaderBoardService)
+        SecurityContextHolderHelper.setSecurityContext(AccountFixtures.DEVELOPER)
     }
 
     @Test
     fun `createNewMatch should create match with valid characters`() {
         val request = MatchCreateRequest(challengerId = challengerId, opponentId = opponentId, rounds = 10)
         
-        `when`(characterService.getChallengers(eq(accountId))).thenReturn(listOf(warrior))
-        `when`(characterService.getOpponents(eq(accountId))).thenReturn(listOf(sorcerer))
-        `when`(matchRepository.saveMatch(
-            eq(challengerId),
-            eq(opponentId),
-            any(),
-            any(),
-            any(),
-            any()
-        )).thenReturn(createMatchResponse(MatchOutcome.CHALLENGER_WON))
+        every { characterService.getChallengers(accountId) } returns listOf(warrior)
+        every { characterService.getOpponents(accountId) } returns listOf(sorcerer)
+        every { 
+            matchRepository.saveMatch(
+                challengerId,
+                opponentId,
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns createMatchResponse(MatchOutcome.CHALLENGER_WON)
+
+        every { leaderBoardService.updateLeaderBoardFromMatch(matchId) } returns Unit
 
         val result = matchService.createNewMatch(request, accountId)
 
-        verify(characterService).getChallengers(eq(accountId))
-        verify(characterService).getOpponents(eq(accountId))
-        verify(matchRepository).saveMatch(
-            eq(challengerId),
-            eq(opponentId),
-            any(),
-            any(),
-            any(),
-            any()
-        )
-        verify(leaderBoardService).updateLeaderBoardFromMatch(eq(matchId))
+        verify { characterService.getChallengers(accountId) }
+        verify { characterService.getOpponents(accountId) }
+        verify { 
+            matchRepository.saveMatch(
+                challengerId,
+                opponentId,
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+        verify { leaderBoardService.updateLeaderBoardFromMatch(matchId) }
 
-        assert(result.id == matchId)
-        assert(result.challenger.id == challengerId)
-        assert(result.opponent.id == opponentId)
-        assert(result.rounds.isNotEmpty())
+        assertEquals(matchId, result.id)
+        assertEquals(challengerId, result.challenger.id)
+        assertEquals(opponentId, result.opponent.id)
+        assertTrue(result.rounds.isNotEmpty())
     }
 
     @Test
     fun `createNewMatch should handle invalid challenger`() {
         val request = MatchCreateRequest(challengerId = 999L, opponentId = opponentId, rounds = 10)
         
-        `when`(characterService.getChallengers(eq(accountId))).thenReturn(emptyList())
-        `when`(characterService.getOpponents(eq(accountId))).thenReturn(listOf(sorcerer))
+        every { characterService.getChallengers(accountId) } returns emptyList()
+        every { characterService.getOpponents(accountId) } returns listOf(sorcerer)
 
-        assertThrows<IllegalArgumentException> {
+        val exception = assertThrows<IllegalStateException> {
             matchService.createNewMatch(request, accountId)
         }
+        
+        assertTrue(exception.message!!.contains("Challenger"))
 
-        verify(characterService).getChallengers(eq(accountId))
-        verify(characterService).getOpponents(eq(accountId))
-        verify(matchRepository, never()).saveMatch(any(), any(), any(), any(), any(), any())
+        verify { characterService.getChallengers(accountId) }
+        verify { characterService.getOpponents(accountId) }
+        verify(exactly = 0) { 
+            matchRepository.saveMatch(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
     fun `createNewMatch should handle invalid opponent`() {
         val request = MatchCreateRequest(challengerId = challengerId, opponentId = 999L, rounds = 10)
         
-        `when`(characterService.getChallengers(eq(accountId))).thenReturn(listOf(warrior))
-        `when`(characterService.getOpponents(eq(accountId))).thenReturn(emptyList())
+        every { characterService.getChallengers(accountId) } returns listOf(warrior)
+        every { characterService.getOpponents(accountId) } returns emptyList()
 
-        assertThrows<IllegalArgumentException> {
+        val exception = assertThrows<IllegalStateException> {
             matchService.createNewMatch(request, accountId)
         }
+        
+        assertTrue(exception.message!!.contains("Opponent"))
 
-        verify(characterService).getChallengers(eq(accountId))
-        verify(characterService).getOpponents(eq(accountId))
-        verify(matchRepository, never()).saveMatch(any(), any(), any(), any(), any(), any())
+        verify { characterService.getChallengers(accountId) }
+        verify { characterService.getOpponents(accountId) }
+        verify(exactly = 0) { 
+            matchRepository.saveMatch(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
     fun `createNewMatch should handle invalid rounds`() {
         val request = MatchCreateRequest(challengerId = challengerId, opponentId = opponentId, rounds = 0)
         
-        assertThrows<IllegalArgumentException> {
+        // No need to mock challenger or opponent since the rounds validation happens first
+        
+        val exception = assertThrows<IllegalArgumentException> {
             matchService.createNewMatch(request, accountId)
         }
-
-        verify(matchRepository, never()).saveMatch(any(), any(), any(), any(), any(), any())
+        
+        assertEquals("Number of rounds must be greater than 0", exception.message)
+        
+        verify(exactly = 0) { 
+            matchRepository.saveMatch(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
     fun `getAllMatches should return all matches`() {
         val matches = listOf(createMatchResponse(MatchOutcome.CHALLENGER_WON))
-        `when`(matchRepository.getMatches()).thenReturn(matches)
+        every { matchRepository.getMatches() } returns matches
 
         val result = matchService.getAllMatches()
 
-        assert(result.size == 1)
-        assert(result[0].id == matchId)
-        verify(matchRepository).getMatches()
+        assertEquals(1, result.size)
+        assertEquals(matchId, result[0].id)
+        verify { matchRepository.getMatches() }
+    }
+    
+    @Test
+    fun `getMatchById should return match by id`() {
+        val match = createMatchResponse(MatchOutcome.CHALLENGER_WON)
+        every { matchRepository.getMatchById(matchId) } returns match
+
+        val result = matchService.getMatchById(matchId)
+
+        assertEquals(matchId, result.id)
+        assertEquals(challengerId, result.challenger.id)
+        assertEquals(opponentId, result.opponent.id)
+        verify { matchRepository.getMatchById(matchId) }
+    }
+    
+    @Test
+    fun `getMatchById should throw exception when match not found`() {
+        every { matchRepository.getMatchById(matchId) } returns null
+
+        val exception = assertThrows<IllegalStateException> {
+            matchService.getMatchById(matchId)
+        }
+        
+        assertTrue(exception.message!!.contains("No match found with ID"))
+        verify { matchRepository.getMatchById(matchId) }
     }
 
     private fun createMatchResponse(outcome: MatchOutcome) = MatchResultResponse(

@@ -3,14 +3,12 @@ package com.motycka.edu.game.character
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.motycka.edu.game.account.AccountService
 import com.motycka.edu.game.account.model.Account
-import com.motycka.edu.game.character.interfaces.Character
 import com.motycka.edu.game.character.model.CharacterClass
 import com.motycka.edu.game.character.model.CharacterLevel
 import com.motycka.edu.game.character.model.Sorcerer
 import com.motycka.edu.game.character.model.Warrior
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
 import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
-import com.motycka.edu.game.character.rest.CharacterResponse
 import com.motycka.edu.game.config.SecurityContextHolderHelper
 import com.motycka.edu.game.config.TestSecurityConfiguration
 import com.motycka.edu.game.error.NotFoundException

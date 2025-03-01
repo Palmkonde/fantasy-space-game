@@ -27,6 +27,10 @@ class MatchService(
 
     @Transactional
     fun createNewMatch(request: MatchCreateRequest, accountId: AccountId): MatchResultResponse {
+        if (request.rounds <= 0) {
+            throw IllegalArgumentException("Number of rounds must be greater than 0")
+        }
+        
         val challenger = characterService.getChallengers(accountId).firstOrNull { it.id == request.challengerId }
         val opponent = characterService.getOpponents(accountId).firstOrNull { it.id == request.opponentId }
 
@@ -122,6 +126,11 @@ class MatchService(
 
     fun getAllMatches(): List<MatchResultResponse> {
         return matchRepository.getMatches()
+    }
+
+    fun getMatchById(matchId: Long): MatchResultResponse {
+        return matchRepository.getMatchById(matchId)
+            ?: throw IllegalStateException("No match found with ID: $matchId")
     }
 
     private fun createRoundData(data: List<Int>, round: Int, character: Character): RoundData {

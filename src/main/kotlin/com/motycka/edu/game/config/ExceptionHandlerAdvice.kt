@@ -24,10 +24,14 @@ class ExceptionHandlerAdvice : ResponseEntityExceptionHandler() {
         return handleResponse(ex, HttpStatus.NOT_FOUND, request);
     }
 
-
     @ExceptionHandler(AuthenticationException::class)
     fun unauthorizedError(ex: RuntimeException, request: WebRequest): ResponseEntity<Any> {
         return handleResponse(ex, HttpStatus.UNAUTHORIZED, request);
+    }
+    
+    @ExceptionHandler(RuntimeException::class)
+    fun handleServerError(ex: RuntimeException, request: WebRequest): ResponseEntity<Any> {
+        return handleResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     fun handleResponse(ex: Exception, status: HttpStatus, request: WebRequest): ResponseEntity<Any> {
