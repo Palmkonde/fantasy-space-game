@@ -1,6 +1,5 @@
 package com.motycka.edu.game.character
 
-import com.fasterxml.jackson.annotation.Nulls
 import com.motycka.edu.game.account.model.AccountId
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
@@ -14,7 +13,6 @@ import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.sql.ResultSet
 import java.sql.SQLException
-import kotlin.math.log
 
 private val logger = KotlinLogging.logger {  }
 
