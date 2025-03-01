@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.motycka.edu.game.leaderboard.LeaderBoardRepositoryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-03-01T13:18:25" hostname="LAPTOP-HA6MK979" time="0.608">
+  <properties/>
+  <testcase name="updateLeaderBoardFromMatch should insert new record if none exists()" classname="com.motycka.edu.game.leaderboard.LeaderBoardRepositoryTest" time="0.608"/>
+  <system-out><![CDATA[20:18:23,960 |-INFO in ch.qos.logback.classic.LoggerContext[default] - This is logback-classic version 1.4.14
+20:18:23,963 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - Here is a list of configurators discovered as a service, by rank: 
+20:18:23,964 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 -   org.springframework.boot.logging.logback.RootLogLevelConfigurator
+20:18:23,964 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - They will be invoked in order until ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY is returned.
+20:18:23,964 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - Constructed configurator of type class org.springframework.boot.logging.logback.RootLogLevelConfigurator
+20:18:23,970 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - org.springframework.boot.logging.logback.RootLogLevelConfigurator.configure() call lasted 0 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+20:18:23,970 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - Trying to configure with ch.qos.logback.classic.joran.SerializedModelConfigurator
+20:18:23,971 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - Constructed configurator of type class ch.qos.logback.classic.joran.SerializedModelConfigurator
+20:18:23,974 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.scmo]
+20:18:23,974 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.scmo]
+20:18:23,974 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - ch.qos.logback.classic.joran.SerializedModelConfigurator.configure() call lasted 3 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+20:18:23,974 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - Trying to configure with ch.qos.logback.classic.util.DefaultJoranConfigurator
+20:18:23,974 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - Constructed configurator of type class ch.qos.logback.classic.util.DefaultJoranConfigurator
+20:18:23,975 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+20:18:23,977 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/D:/StudyLecture/BachlorCS_year1/Module8(Kotlin)/fantasy-space-game/build/resources/main/logback.xml]
+20:18:24,049 |-INFO in ch.qos.logback.core.model.processor.StatusListenerModelHandler - Added status listener of type [ch.qos.logback.core.status.OnConsoleStatusListener]
+20:18:24,067 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [STDOUT]
+20:18:24,067 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+20:18:24,082 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [ch.qos.logback.classic.encoder.PatternLayoutEncoder] for [encoder] property
+20:18:24,104 |-INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler - Setting level of ROOT logger to TRACE
+20:18:24,105 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [STDOUT] to Logger[ROOT]
+20:18:24,105 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [*] to DEBUG
+20:18:24,106 |-INFO in ch.qos.logback.core.model.processor.DefaultProcessor@878452d - End of configuration.
+20:18:24,107 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@42a9e5d1 - Registering current configuration as safe fallback point
+20:18:24,107 |-INFO in ch.qos.logback.classic.util.ContextInitializer@2a8d39c4 - ch.qos.logback.classic.util.DefaultJoranConfigurator.configure() call lasted 133 milliseconds. ExecutionStatus=DO_NOT_INVOKE_NEXT_IF_ANY
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (D:\SplitSoftware\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.14.11\f9cb566608fbac6bc7bf54901a7aa11543a989ee\byte-buddy-agent-1.14.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

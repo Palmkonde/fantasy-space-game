@@ -1,7 +1,6 @@
 package com.motycka.edu.game.character
 
 import com.motycka.edu.game.account.AccountService
-import com.motycka.edu.game.account.model.AccountId
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
 import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
 import com.motycka.edu.game.character.rest.CharacterResponse
