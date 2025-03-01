@@ -3,32 +3,44 @@ package com.motycka.edu.game.account
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.motycka.edu.game.account.rest.AccountRegistrationRequest
 import com.motycka.edu.game.account.rest.toAccountResponse
-import com.motycka.edu.game.config.SecurityConfiguration
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import io.mockk.verify
+import com.motycka.edu.game.config.WebMvcTestConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 @WebMvcTest(AccountController::class)
-@Import(SecurityConfiguration::class)
+@Import(AccountControllerTest.TestConfig::class, WebMvcTestConfig::class)
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@AutoConfigureMockMvc(addFilters = false)
 class AccountControllerTest {
+
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        @Primary
+        fun accountService(): AccountService = mockk(relaxed = true)
+    }
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @MockkBean
+    @Autowired
     private lateinit var accountService: AccountService
 
     private val objectMapper = ObjectMapper()
@@ -59,7 +71,6 @@ class AccountControllerTest {
 
         mockMvc.perform(
             post(endpoint)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountRegistrationRequest))
@@ -82,9 +93,7 @@ class AccountControllerTest {
 
         mockMvc.perform(
             get(endpoint)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(httpBasic(existingAccount.username, existingAccount.password))
         )
             .andExpect(status().isOk)
             .andExpect(content().json(expectedResponse))

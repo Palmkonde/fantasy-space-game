@@ -91,16 +91,16 @@ class MatchServiceTest {
         val request = MatchCreateRequest(challengerId = 999L, opponentId = opponentId, rounds = 10)
         
         every { characterService.getChallengers(accountId) } returns emptyList()
-        every { characterService.getOpponents(accountId) } returns listOf(sorcerer)
+        // We don't need to mock getOpponents since it won't be called
 
-        val exception = assertThrows<IllegalStateException> {
+        val exception = assertThrows<IllegalArgumentException> {
             matchService.createNewMatch(request, accountId)
         }
         
-        assertTrue(exception.message!!.contains("Challenger"))
+        assertTrue(exception.message!!.contains("Character with ID"))
 
         verify { characterService.getChallengers(accountId) }
-        verify { characterService.getOpponents(accountId) }
+        // Don't verify getOpponents since it won't be called
         verify(exactly = 0) { 
             matchRepository.saveMatch(
                 any(),
@@ -120,11 +120,11 @@ class MatchServiceTest {
         every { characterService.getChallengers(accountId) } returns listOf(warrior)
         every { characterService.getOpponents(accountId) } returns emptyList()
 
-        val exception = assertThrows<IllegalStateException> {
+        val exception = assertThrows<IllegalArgumentException> {
             matchService.createNewMatch(request, accountId)
         }
         
-        assertTrue(exception.message!!.contains("Opponent"))
+        assertTrue(exception.message!!.contains("Character with ID"))
 
         verify { characterService.getChallengers(accountId) }
         verify { characterService.getOpponents(accountId) }

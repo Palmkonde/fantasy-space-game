@@ -14,20 +14,25 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import com.motycka.edu.game.config.WebMvcTestConfig
 
 @WebMvcTest(LeaderBoardController::class)
-@Import(LeaderBoardControllerTest.TestConfig::class)
+@Import(LeaderBoardControllerTest.TestConfig::class, WebMvcTestConfig::class)
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@AutoConfigureMockMvc(addFilters = false)
 class LeaderBoardControllerTest {
 
     @TestConfiguration

@@ -77,13 +77,8 @@ class CharacterController(
         @RequestBody updateCharacter: CharacterLevelUpRequest
     ): ResponseEntity<CharacterResponse> {
         logger.debug { "Update Character" }
-        return try {
-            ResponseEntity.ok(
-                characterService.upLevelCharacterById(id, updateCharacter).toCharacterResponse(accountService.getCurrentAccountId())
-            )
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to update character" }
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        }
+        val accountId = accountService.getCurrentAccountId()
+        val updatedCharacter = characterService.upLevelCharacterById(id, updateCharacter)
+        return ResponseEntity.ok(updatedCharacter.toCharacterResponse(accountId))
     }
 }

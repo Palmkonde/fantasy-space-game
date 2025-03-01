@@ -10,6 +10,7 @@ import com.motycka.edu.game.character.model.Warrior
 import com.motycka.edu.game.character.rest.CharacterCreateRequest
 import com.motycka.edu.game.character.rest.CharacterLevelUpRequest
 import com.motycka.edu.game.config.SecurityContextHolderHelper
+import com.motycka.edu.game.config.WebMvcTestConfig
 import com.motycka.edu.game.error.NotFoundException
 import io.mockk.every
 import io.mockk.mockk
@@ -17,18 +18,22 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(CharacterController::class)
-@Import(CharacterControllerTest.TestConfig::class)
+@Import(CharacterControllerTest.TestConfig::class, WebMvcTestConfig::class)
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@AutoConfigureMockMvc(addFilters = false)
 class CharacterControllerTest {
 
     @TestConfiguration
@@ -221,6 +226,18 @@ class CharacterControllerTest {
     }
 
     @Test
+    fun `putCharacter should handle validation errors`() {
+        every { characterService.upLevelCharacterById(any(), any()) } throws IllegalArgumentException("Invalid point distribution")
+
+        mockMvc.perform(put("/api/characters/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(levelUpWarriorRequest)))
+            .andExpect(status().isBadRequest)
+
+        verify { characterService.upLevelCharacterById(any(), any()) }
+    }
+
+    @Test
     fun `postCharacter should validate warrior point distribution`() {
         val invalidRequest = CharacterCreateRequest(
             name = "InvalidWarrior",
@@ -282,7 +299,7 @@ class CharacterControllerTest {
         mockMvc.perform(put("/api/characters/1")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isInternalServerError)
+            .andExpect(status().isBadRequest)
 
         verify { characterService.upLevelCharacterById(any(), any()) }
     }
@@ -304,7 +321,7 @@ class CharacterControllerTest {
         mockMvc.perform(put("/api/characters/1")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isInternalServerError)
+            .andExpect(status().isBadRequest)
 
         verify { characterService.upLevelCharacterById(any(), any()) }
     }
