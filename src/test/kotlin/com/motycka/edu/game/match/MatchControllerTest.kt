@@ -9,10 +9,12 @@ import com.motycka.edu.game.match.model.MatchOutcome
 import com.motycka.edu.game.match.model.RoundData
 import com.motycka.edu.game.match.rest.MatchCreateRequest
 import com.motycka.edu.game.match.rest.MatchResultResponse
-import io.mockk.every
-import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.any
+import org.mockito.Mockito.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -37,27 +39,29 @@ class MatchControllerTest {
 
     private val accountId = 1L
     private val matchId = 1L
+    private val challengerId = 1L
+    private val opponentId = 2L
+
+    private val validMatchResponse = MatchResultResponse(
+        id = matchId,
+        challenger = Fighter(challengerId, "Warrior", CharacterClass.WARRIOR, CharacterLevel.LEVEL_1, 100, 10),
+        opponent = Fighter(opponentId, "Sorcerer", CharacterClass.SORCERER, CharacterLevel.LEVEL_1, 100, 10),
+        rounds = listOf(
+            RoundData(round = 1, characterId = challengerId, healthDelta = -10, staminaDelta = -5, manaDelta = 0),
+            RoundData(round = 1, characterId = opponentId, healthDelta = -20, staminaDelta = -10, manaDelta = 0)
+        ),
+        matchOutcome = MatchOutcome.CHALLENGER_WON
+    )
 
     @BeforeEach
     fun setUp() {
-        every { accountService.getCurrentAccountId() } returns accountId
+        `when`(accountService.getCurrentAccountId()).thenReturn(accountId)
     }
 
     @Test
     fun `createNewMatch should create a new match`() {
-        val request = MatchCreateRequest(challengerId = 1L, opponentId = 2L, rounds = 10)
-        val response = MatchResultResponse(
-            id = matchId,
-            challenger = Fighter(1L, "Challenger", CharacterClass.WARRIOR, CharacterLevel.LEVEL_1, 100, 10),
-            opponent = Fighter(2L, "Opponent", CharacterClass.SORCERER, CharacterLevel.LEVEL_1, 100, 10),
-            rounds = listOf(
-                RoundData(round = 1, characterId = 1L, healthDelta = -10, staminaDelta = -5, manaDelta = 0),
-                RoundData(round = 1, characterId = 2L, healthDelta = -20, staminaDelta = -10, manaDelta = 0)
-            ),
-            matchOutcome = MatchOutcome.CHALLENGER_WON
-        )
-
-        every { matchService.createNewMatch(any(), any()) } returns response
+        val request = MatchCreateRequest(challengerId = challengerId, opponentId = opponentId, rounds = 10)
+        `when`(matchService.createNewMatch(any<MatchCreateRequest>(), eq(accountId))).thenReturn(validMatchResponse)
 
         mockMvc.perform(
             post("/api/matches")
@@ -66,36 +70,74 @@ class MatchControllerTest {
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").value(matchId))
-            .andExpect(jsonPath("$.matchOutcome").value(MatchOutcome.CHALLENGER_WON.name))
-            .andExpect(jsonPath("$.rounds[0].characterId").value(1L))
+            .andExpect(jsonPath("$.challenger.id").value(challengerId))
+            .andExpect(jsonPath("$.challenger.characterClass").value("WARRIOR"))
+            .andExpect(jsonPath("$.opponent.id").value(opponentId))
+            .andExpect(jsonPath("$.opponent.characterClass").value("SORCERER"))
+            .andExpect(jsonPath("$.matchOutcome").value("CHALLENGER_WON"))
+            .andExpect(jsonPath("$.rounds.length()").value(2))
             .andExpect(jsonPath("$.rounds[0].healthDelta").value(-10))
 
-        verify { matchService.createNewMatch(request, accountId) }
+        verify(matchService).createNewMatch(any<MatchCreateRequest>(), eq(accountId))
+    }
+
+    @Test
+    fun `createNewMatch should handle invalid character error`() {
+        val request = MatchCreateRequest(challengerId = 999L, opponentId = opponentId, rounds = 10)
+        `when`(matchService.createNewMatch(any<MatchCreateRequest>(), eq(accountId)))
+            .thenThrow(IllegalArgumentException("Invalid character ID"))
+
+        mockMvc.perform(
+            post("/api/matches")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isBadRequest)
+
+        verify(matchService).createNewMatch(any<MatchCreateRequest>(), eq(accountId))
+    }
+
+    @Test
+    fun `createNewMatch should validate rounds`() {
+        val request = MatchCreateRequest(challengerId = challengerId, opponentId = opponentId, rounds = 0)
+        `when`(matchService.createNewMatch(any<MatchCreateRequest>(), eq(accountId)))
+            .thenThrow(IllegalArgumentException("Rounds must be greater than 0"))
+
+        mockMvc.perform(
+            post("/api/matches")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isBadRequest)
+
+        verify(matchService).createNewMatch(any<MatchCreateRequest>(), eq(accountId))
     }
 
     @Test
     fun `getMatches should return all matches`() {
-        val response = listOf(
-            MatchResultResponse(
-                id = matchId,
-                challenger = Fighter(1L, "Challenger", CharacterClass.WARRIOR, CharacterLevel.LEVEL_1, 100, 10),
-                opponent = Fighter(2L, "Opponent", CharacterClass.SORCERER, CharacterLevel.LEVEL_1, 100, 10),
-                rounds = listOf(
-                    RoundData(round = 1, characterId = 1L, healthDelta = -10, staminaDelta = -5, manaDelta = 0),
-                    RoundData(round = 1, characterId = 2L, healthDelta = -20, staminaDelta = -10, manaDelta = 0)
-                ),
-                matchOutcome = MatchOutcome.CHALLENGER_WON
-            )
-        )
-
-        every { matchService.getAllMatches() } returns response
+        val matches = listOf(validMatchResponse)
+        `when`(matchService.getAllMatches()).thenReturn(matches)
 
         mockMvc.perform(get("/api/matches"))
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].id").value(matchId))
-            .andExpect(jsonPath("$[0].matchOutcome").value(MatchOutcome.CHALLENGER_WON.name))
-            .andExpect(jsonPath("$[0].rounds[0].characterId").value(1L))
+            .andExpect(jsonPath("$[0].challenger.id").value(challengerId))
+            .andExpect(jsonPath("$[0].opponent.id").value(opponentId))
+            .andExpect(jsonPath("$[0].matchOutcome").value("CHALLENGER_WON"))
+            .andExpect(jsonPath("$[0].rounds.length()").value(2))
 
-        verify { matchService.getAllMatches() }
+        verify(matchService).getAllMatches()
+    }
+
+    @Test
+    fun `getMatches should handle empty result`() {
+        `when`(matchService.getAllMatches()).thenReturn(emptyList())
+
+        mockMvc.perform(get("/api/matches"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(0))
+
+        verify(matchService).getAllMatches()
     }
 }

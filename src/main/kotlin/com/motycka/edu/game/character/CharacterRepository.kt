@@ -25,6 +25,14 @@ class CharacterRepository(
     fun selectByFilters(className: String?, name: String?): List<Character> {
         logger.debug { "Selecting characters by class: $className, name: $name" }
 
+        // If no filters are provided, use a simpler query
+        if (className == null && name == null) {
+            return jdbcTemplate.query(
+                "SELECT * FROM character",
+                ::rowMapper
+            )
+        }
+
         val sql = StringBuilder("SELECT * FROM character")
         val params = mutableListOf<Any>()
 
